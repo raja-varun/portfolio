@@ -14,7 +14,7 @@ export const SITE_CONFIG = {
   GRADUATION_YEAR: '2024 – 2027',
   
   // Central URLs and Handles
-  GITHUB_USERNAME: 'rajavarun', // Replace with your exact GitHub handle if different
+  GITHUB_USERNAME: 'raja-varun', // Replace with your exact GitHub handle if different
   LINKEDIN_URL: 'https://linkedin.com/in/rajavarun',
   PORTFOLIO_URL: 'https://portfolio-teal-ten-9klv2nzl2d.vercel.app',
   RESUME_URL: '/varun_resume_2.pdf', // Direct link to verified resume in /public
