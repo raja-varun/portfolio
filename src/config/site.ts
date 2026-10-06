@@ -16,7 +16,7 @@ export const SITE_CONFIG = {
   // Central URLs and Handles
   GITHUB_USERNAME: 'rajavarun', // Replace with your exact GitHub handle if different
   LINKEDIN_URL: 'https://linkedin.com/in/rajavarun',
-  PORTFOLIO_URL: 'https://rajavarun-portfolio.vercel.app', // Placeholder until deployment
+  PORTFOLIO_URL: 'https://portfolio-teal-ten-9klv2nzl2d.vercel.app',
   RESUME_URL: '/varun_resume_2.pdf', // Direct link to verified resume in /public
 
   // Open Graph & SEO
