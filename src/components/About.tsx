@@ -16,7 +16,7 @@ interface FocusArea {
   };
 }
 
-export const About: React.FC = () => {
+export const About: React.FC = React.memo(() => {
   const [activeArea, setActiveArea] = useState<string>('multimodal');
 
   const focusAreas: FocusArea[] = [
@@ -224,4 +224,4 @@ export const About: React.FC = () => {
 
     </section>
   );
-};
+});

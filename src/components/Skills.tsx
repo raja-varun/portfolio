@@ -109,7 +109,7 @@ const SKILL_DETAILS: SkillContext = {
   }
 };
 
-export const Skills: React.FC = () => {
+export const Skills: React.FC = React.memo(() => {
   const [selectedSkill, setSelectedSkill] = useState<string>('Python');
   const [copiedSkill, setCopiedSkill] = useState<string | null>(null);
 
@@ -274,4 +274,4 @@ export const Skills: React.FC = () => {
 
     </section>
   );
-};
+});

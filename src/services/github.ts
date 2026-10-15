@@ -58,48 +58,85 @@ export const FALLBACK_REPOS: GitHubRepo[] = [
   }
 ];
 
-export async function fetchGitHubRepos(username: string): Promise<{
+type GitHubFetchResult = {
   repos: GitHubRepo[];
   isFallback: boolean;
   error?: string;
-}> {
+};
+
+type CachedResult = {
+  result: GitHubFetchResult;
+  expiresAt: number;
+};
+
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const resultCache = new Map<string, CachedResult>();
+const inFlightRequests = new Map<string, Promise<GitHubFetchResult>>();
+
+export async function fetchGitHubRepos(
+  username: string,
+  options: { force?: boolean } = {},
+): Promise<GitHubFetchResult> {
   if (!username) {
     return { repos: FALLBACK_REPOS, isFallback: true };
   }
 
-  try {
+  const cached = resultCache.get(username);
+  if (!options.force && cached && cached.expiresAt > Date.now()) {
+    return cached.result;
+  }
+
+  const existingRequest = inFlightRequests.get(username);
+  if (existingRequest) return existingRequest;
+
+  const request = (async (): Promise<GitHubFetchResult> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-    const res = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=12`, {
-      signal: controller.signal,
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-      },
-    });
+    try {
+      const res = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=12`, {
+        signal: controller.signal,
+        headers: {
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
 
-    clearTimeout(timeoutId);
+      if (!res.ok) {
+        return {
+          repos: FALLBACK_REPOS,
+          isFallback: true,
+          error: `GitHub API responded with status ${res.status} (Showing featured repositories fallback)`
+        };
+      }
 
-    if (!res.ok) {
+      const data: GitHubRepo[] = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        return { repos: FALLBACK_REPOS, isFallback: true };
+      }
+
+      return { repos: data, isFallback: false };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Network error';
       return {
         repos: FALLBACK_REPOS,
         isFallback: true,
-        error: `GitHub API responded with status ${res.status} (Showing featured repositories fallback)`
+        error: `Could not reach GitHub API: ${message} (Showing featured repositories fallback)`
       };
+    } finally {
+      clearTimeout(timeoutId);
     }
+  })();
 
-    const data: GitHubRepo[] = await res.json();
-    if (!Array.isArray(data) || data.length === 0) {
-      return { repos: FALLBACK_REPOS, isFallback: true };
-    }
+  inFlightRequests.set(username, request);
 
-    return { repos: data, isFallback: false };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Network error';
-    return {
-      repos: FALLBACK_REPOS,
-      isFallback: true,
-      error: `Could not reach GitHub API: ${message} (Showing featured repositories fallback)`
-    };
+  try {
+    const result = await request;
+    resultCache.set(username, {
+      result,
+      expiresAt: Date.now() + CACHE_TTL_MS,
+    });
+    return result;
+  } finally {
+    inFlightRequests.delete(username);
   }
 }

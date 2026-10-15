@@ -3,7 +3,9 @@ import { SITE_CONFIG } from '../config/site';
 import { Mail, ArrowUp } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './SocialIcons';
 
-export const Footer: React.FC = () => {
+const CURRENT_YEAR = new Date().getFullYear();
+
+export const Footer: React.FC = React.memo(() => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -66,8 +68,8 @@ export const Footer: React.FC = () => {
 
       {/* Editorial copyright strip */}
       <div className="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
-        <div>
-          &copy; {new Date().getFullYear()} Raja Varun. All rights reserved.
+         <div>
+          &copy; {CURRENT_YEAR} Raja Varun. All rights reserved.
         </div>
         <div>
           Editorial Creative Developer Aesthetic &bull; Grounded in verified credentials
@@ -75,4 +77,4 @@ export const Footer: React.FC = () => {
       </div>
     </footer>
   );
-};
+});

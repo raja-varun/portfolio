@@ -4,7 +4,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 
-export const ExperienceSection: React.FC = () => {
+export const ExperienceSection: React.FC = React.memo(() => {
   return (
     <section id="experience" className="py-28 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.08]">
       
@@ -104,4 +104,4 @@ export const ExperienceSection: React.FC = () => {
 
     </section>
   );
-};
+});

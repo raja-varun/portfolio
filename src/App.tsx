@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { CustomCursor } from './components/CustomCursor';
 import { AmbientBackground } from './components/AmbientBackground';
 import { Navbar } from './components/Navbar';
@@ -11,18 +11,21 @@ import { GitHubSection } from './components/GitHubSection';
 import { EducationAchievements } from './components/EducationAchievements';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
-import { ResumeModal } from './components/ResumeModal';
+
+const ResumeModal = lazy(() => import('./components/ResumeModal').then(({ ResumeModal: Modal }) => ({ default: Modal })));
 
 export function App() {
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const [resumeModalLoaded, setResumeModalLoaded] = useState(false);
 
-  const handleOpenResume = () => {
+  const handleOpenResume = useCallback(() => {
+    setResumeModalLoaded(true);
     setResumeModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseResume = () => {
+  const handleCloseResume = useCallback(() => {
     setResumeModalOpen(false);
-  };
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-[#08090d] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-200">
@@ -53,10 +56,14 @@ export function App() {
       </div>
 
       {/* Resume Modal */}
-      <ResumeModal
-        isOpen={resumeModalOpen}
-        onClose={handleCloseResume}
-      />
+      {resumeModalLoaded && (
+        <Suspense fallback={null}>
+          <ResumeModal
+            isOpen={resumeModalOpen}
+            onClose={handleCloseResume}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

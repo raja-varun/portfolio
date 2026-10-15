@@ -18,16 +18,15 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-10">
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-10">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -122,7 +121,8 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
           </div>
 
         </motion.div>
-      </div>
+        </div>
+      )}
     </AnimatePresence>
   );
 };

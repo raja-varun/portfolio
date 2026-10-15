@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useCallback, useState } from 'react';
 import { PROJECTS } from '../data/resumeData';
 import type { Project } from '../data/resumeData';
-import { ProjectModal } from './ProjectModal';
 import { ProjectVisualizer } from './ProjectVisualizer';
 import { ArrowUpRight } from 'lucide-react';
 import { GithubIcon } from './SocialIcons';
 import { motion } from 'framer-motion';
 
-export const Projects: React.FC = () => {
+const ProjectModal = lazy(() => import('./ProjectModal').then(({ ProjectModal: Modal }) => ({ default: Modal })));
+
+export const Projects: React.FC = React.memo(() => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projectModalLoaded, setProjectModalLoaded] = useState(false);
+
+  const handleSelectProject = useCallback((project: Project) => {
+    setProjectModalLoaded(true);
+    setSelectedProject(project);
+  }, []);
+
+  const handleCloseProject = useCallback(() => {
+    setSelectedProject(null);
+  }, []);
 
   return (
     <section id="projects" className="py-28 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.08]">
@@ -111,7 +122,7 @@ export const Projects: React.FC = () => {
                   {/* Action Bar */}
                   <div className="pt-6 border-t border-white/[0.08] flex items-center gap-3">
                     <button
-                      onClick={() => setSelectedProject(project)}
+                      onClick={() => handleSelectProject(project)}
                       className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-mono uppercase tracking-wider text-black bg-white hover:bg-slate-200 font-bold transition-all cursor-pointer active:scale-95 shadow-md"
                     >
                       <span>Inspect Architecture</span>
@@ -145,11 +156,15 @@ export const Projects: React.FC = () => {
       </div>
 
       {/* Case Study Modal */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
+      {projectModalLoaded && (
+        <Suspense fallback={null}>
+          <ProjectModal
+            project={selectedProject}
+            onClose={handleCloseProject}
+          />
+        </Suspense>
+      )}
 
     </section>
   );
-};
+});

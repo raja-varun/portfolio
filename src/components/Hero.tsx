@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { SITE_CONFIG } from '../config/site';
 import { ArrowDownRight, FileDown, Check, Copy, ArrowRight } from 'lucide-react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
@@ -8,16 +8,29 @@ interface HeroProps {
   onDownloadResume: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onDownloadResume }) => {
+export const Hero: React.FC<HeroProps> = React.memo(({ onDownloadResume }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const boundsRef = useRef<DOMRect | null>(null);
+  const parallaxEnabled = typeof window !== 'undefined'
+    && window.matchMedia('(pointer: fine)').matches
+    && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Mouse tilt / parallax values
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
+    if (parallaxEnabled) {
+      boundsRef.current = e.currentTarget.getBoundingClientRect();
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (!parallaxEnabled) return;
+
     const { currentTarget, clientX, clientY } = e;
-    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const bounds = boundsRef.current ?? currentTarget.getBoundingClientRect();
+    const { left, top, width, height } = bounds;
     const x = (clientX - left) / width - 0.5;
     const y = (clientY - top) / height - 0.5;
     mouseX.set(x);
@@ -25,6 +38,7 @@ export const Hero: React.FC<HeroProps> = ({ onDownloadResume }) => {
   };
 
   const handleMouseLeave = () => {
+    boundsRef.current = null;
     mouseX.set(0);
     mouseY.set(0);
   };
@@ -46,6 +60,7 @@ export const Hero: React.FC<HeroProps> = ({ onDownloadResume }) => {
   return (
     <section
       id="hero"
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className="relative min-h-[92vh] flex flex-col justify-between pt-32 pb-12 px-4 sm:px-8 max-w-7xl mx-auto"
@@ -219,4 +234,4 @@ export const Hero: React.FC<HeroProps> = ({ onDownloadResume }) => {
       </motion.div>
     </section>
   );
-};
+});

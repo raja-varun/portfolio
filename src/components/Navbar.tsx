@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { SITE_CONFIG } from '../config/site';
 import { Menu, X, ArrowUpRight, FileDown } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './SocialIcons';
@@ -8,54 +8,77 @@ interface NavbarProps {
   onDownloadResume: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onDownloadResume }) => {
+const NAV_LINKS = [
+  { label: 'Overview', href: '#hero', id: 'hero' },
+  { label: 'Philosophy', href: '#about', id: 'about' },
+  { label: 'Work', href: '#projects', id: 'projects' },
+  { label: 'Tooling', href: '#skills', id: 'skills' },
+  { label: 'Timeline', href: '#experience', id: 'experience' },
+  { label: 'Open Source', href: '#github', id: 'github' },
+  { label: 'Credentials', href: '#education', id: 'education' },
+  { label: 'Contact', href: '#contact', id: 'contact' },
+] as const;
+
+const SECTION_IDS = NAV_LINKS.map((link) => link.id);
+
+export const Navbar: React.FC<NavbarProps> = React.memo(({ onDownloadResume }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-
-      const sections = ['hero', 'about', 'projects', 'skills', 'experience', 'github', 'education', 'contact'];
-      const scrollPosition = window.scrollY + 250;
-
-      for (const section of sections) {
-        const el = document.getElementById(section);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
+      const nextIsScrolled = window.scrollY > 40;
+      setIsScrolled((current) => current === nextIsScrolled ? current : nextIsScrolled);
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    const visibleSections = new Map<string, number>();
+    const sectionObserver = 'IntersectionObserver' in window
+      ? new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              visibleSections.set(entry.target.id, entry.boundingClientRect.top);
+            } else {
+              visibleSections.delete(entry.target.id);
+            }
+          });
+
+          const nextSection = [...visibleSections.entries()]
+            .sort(([, firstTop], [, secondTop]) => firstTop - secondTop)[0]?.[0];
+
+          if (nextSection) {
+            setActiveSection((current) => current === nextSection ? current : nextSection);
+          }
+        }, {
+          rootMargin: '-20% 0px -65% 0px',
+          threshold: [0, 0.01],
+        })
+      : null;
+
+    if (sectionObserver) {
+      SECTION_IDS.forEach((sectionId) => {
+        const section = document.getElementById(sectionId);
+        if (section) sectionObserver.observe(section);
+      });
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      sectionObserver?.disconnect();
+    };
   }, []);
 
-  const navLinks = [
-    { label: 'Overview', href: '#hero', id: 'hero' },
-    { label: 'Philosophy', href: '#about', id: 'about' },
-    { label: 'Work', href: '#projects', id: 'projects' },
-    { label: 'Tooling', href: '#skills', id: 'skills' },
-    { label: 'Timeline', href: '#experience', id: 'experience' },
-    { label: 'Open Source', href: '#github', id: 'github' },
-    { label: 'Credentials', href: '#education', id: 'education' },
-    { label: 'Contact', href: '#contact', id: 'contact' },
-  ];
-
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
     const target = document.querySelector(href);
     if (target) {
       target.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-4 sm:py-6 px-4 sm:px-8 pointer-events-none">
@@ -88,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onDownloadResume }) => {
               : 'bg-transparent border border-transparent'
           }`}
         >
-          {navLinks.map((link) => {
+          {NAV_LINKS.map((link) => {
             const isActive = activeSection === link.id;
             return (
               <a
@@ -177,7 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onDownloadResume }) => {
             className="md:hidden mt-3 p-5 rounded-2xl bg-[#0d0f17]/95 border border-white/10 backdrop-blur-2xl pointer-events-auto space-y-3"
           >
             <div className="grid grid-cols-2 gap-2">
-              {navLinks.map((link) => (
+              {NAV_LINKS.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
@@ -226,4 +249,4 @@ export const Navbar: React.FC<NavbarProps> = ({ onDownloadResume }) => {
       </AnimatePresence>
     </header>
   );
-};
+});

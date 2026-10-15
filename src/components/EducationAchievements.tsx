@@ -3,7 +3,7 @@ import { EDUCATION, ACHIEVEMENTS_CERTIFICATIONS } from '../data/resumeData';
 import { motion } from 'framer-motion';
 
 
-export const EducationAchievements: React.FC = () => {
+export const EducationAchievements: React.FC = React.memo(() => {
   return (
     <section id="education" className="py-28 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.08]">
       
@@ -127,4 +127,4 @@ export const EducationAchievements: React.FC = () => {
 
     </section>
   );
-};
+});

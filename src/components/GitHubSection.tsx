@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SITE_CONFIG } from '../config/site';
 import { fetchGitHubRepos } from '../services/github';
 import type { GitHubRepo } from '../services/github';
@@ -6,56 +6,95 @@ import { Star, GitFork, ExternalLink, RefreshCw, AlertCircle, ArrowUpRight } fro
 import { GithubIcon } from './SocialIcons';
 import { motion } from 'framer-motion';
 
-export const GitHubSection: React.FC = () => {
+const getLanguageColor = (lang: string | null) => {
+  switch (lang?.toLowerCase()) {
+    case 'python':
+      return '#38bdf8';
+    case 'typescript':
+      return '#818cf8';
+    case 'javascript':
+      return '#facc15';
+    case 'html':
+      return '#f97316';
+    case 'c':
+      return '#94a3b8';
+    case 'java':
+      return '#f87171';
+    default:
+      return '#64748b';
+  }
+};
+
+export const GitHubSection: React.FC = React.memo(() => {
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [isFallback, setIsFallback] = useState<boolean>(false);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
+  const mountedRef = useRef(false);
 
-  const loadRepos = async () => {
+  const loadRepos = useCallback(async (force = false) => {
     setLoading(true);
     setErrorNotice(null);
-    const result = await fetchGitHubRepos(SITE_CONFIG.GITHUB_USERNAME);
+    const result = await fetchGitHubRepos(SITE_CONFIG.GITHUB_USERNAME, { force });
+    if (!mountedRef.current) return;
     setRepos(result.repos);
     setIsFallback(result.isFallback);
     if (result.error) {
       setErrorNotice(result.error);
     }
     setLoading(false);
-  };
-
-  useEffect(() => {
-    loadRepos();
   }, []);
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadWhenNeeded = () => {
+      if (!cancelled) void loadRepos();
+    };
+
+    const section = document.getElementById('github');
+    if (!section || !('IntersectionObserver' in window)) {
+      loadWhenNeeded();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) {
+        observer.disconnect();
+        loadWhenNeeded();
+      }
+    }, { rootMargin: '600px 0px' });
+
+    observer.observe(section);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
+  }, [loadRepos]);
+
   // Compute language distribution
-  const languages: { [key: string]: number } = {};
-  repos.forEach((r) => {
-    if (r.language) {
-      languages[r.language] = (languages[r.language] || 0) + 1;
-    }
-  });
+  const languages = useMemo(() => {
+    const distribution: { [key: string]: number } = {};
+    repos.forEach((repo) => {
+      if (repo.language) {
+        distribution[repo.language] = (distribution[repo.language] || 0) + 1;
+      }
+    });
+    return distribution;
+  }, [repos]);
 
-  const totalLangCount = Object.values(languages).reduce((a, b) => a + b, 0);
-
-  const getLanguageColor = (lang: string | null) => {
-    switch (lang?.toLowerCase()) {
-      case 'python':
-        return '#38bdf8';
-      case 'typescript':
-        return '#818cf8';
-      case 'javascript':
-        return '#facc15';
-      case 'html':
-        return '#f97316';
-      case 'c':
-        return '#94a3b8';
-      case 'java':
-        return '#f87171';
-      default:
-        return '#64748b';
-    }
-  };
+  const totalLangCount = useMemo(
+    () => Object.values(languages).reduce((total, count) => total + count, 0),
+    [languages],
+  );
 
   return (
     <section id="github" className="py-28 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/[0.08]">
@@ -90,7 +129,7 @@ export const GitHubSection: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={loadRepos}
+            onClick={() => void loadRepos(true)}
             disabled={loading}
             className="p-3 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-slate-300 hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
             title="Refresh repositories"
@@ -250,4 +289,4 @@ export const GitHubSection: React.FC = () => {
 
     </section>
   );
-};
+});

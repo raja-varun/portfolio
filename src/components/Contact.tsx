@@ -4,7 +4,7 @@ import { Mail, ArrowUpRight, Copy, Check, Send } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from './SocialIcons';
 import { motion } from 'framer-motion';
 
-export const Contact: React.FC = () => {
+export const Contact: React.FC = React.memo(() => {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -215,4 +215,4 @@ export const Contact: React.FC = () => {
 
     </section>
   );
-};
+});

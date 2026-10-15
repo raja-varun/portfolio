@@ -19,24 +19,23 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [project, onClose]);
 
-  if (!project) return null;
-
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-10">
-        {/* Backdrop with blur */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="fixed inset-0 bg-black/85 backdrop-blur-xl"
-        />
+      {project && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-10">
+          {/* Backdrop with blur */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/85 backdrop-blur-xl"
+          />
 
         {/* Modal Window Container */}
         <motion.div
@@ -177,7 +176,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
           </div>
 
         </motion.div>
-      </div>
+        </div>
+      )}
     </AnimatePresence>
   );
 };
