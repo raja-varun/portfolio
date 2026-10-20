@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# OmniRush/local workspace metadata
+.opencode/
+nul
+NUL

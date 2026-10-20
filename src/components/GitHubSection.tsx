@@ -274,11 +274,11 @@ export const GitHubSection: React.FC = React.memo(() => {
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{repo.stargazers_count}</span>
+                    <span>{repo.stargazers_count ?? '—'}</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <GitFork className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{repo.forks_count}</span>
+                    <span>{repo.forks_count ?? '—'}</span>
                   </span>
                 </div>
               </div>

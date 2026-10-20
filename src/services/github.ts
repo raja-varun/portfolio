@@ -5,9 +5,9 @@ export interface GitHubRepo {
   html_url: string;
   homepage: string | null;
   language: string | null;
-  stargazers_count: number;
-  forks_count: number;
-  updated_at: string;
+  stargazers_count: number | null;
+  forks_count: number | null;
+  updated_at: string | null;
   topics: string[];
 }
 
@@ -18,43 +18,45 @@ export interface GitHubStats {
   totalForks: number;
 }
 
-// Fallback repositories derived directly from resume projects in case rate limits or offline mode
+// Curated public-repository fallback used only when the GitHub API is unavailable.
+// Counts and update timestamps are intentionally null: they are live metadata and
+// must not be invented or allowed to become stale portfolio claims.
 export const FALLBACK_REPOS: GitHubRepo[] = [
   {
     id: 101,
-    name: 'colpali-ocr-free-retrieval',
-    description: 'OCR-free multimodal document retrieval system using Qwen2-VL, FAISS, FastAPI, and React.js.',
-    html_url: 'https://github.com/rajavarun/colpali-ocr-free-retrieval',
+    name: 'OCR-Free-Multimodal-RAG',
+    description: 'OCR-free multimodal document retrieval and question answering using FastAPI, Qwen2-VL, FAISS, and React.',
+    html_url: 'https://github.com/raja-varun/OCR-Free-Multimodal-RAG',
     homepage: null,
     language: 'Python',
-    stargazers_count: 5,
-    forks_count: 2,
-    updated_at: '2026-06-15T00:00:00Z',
-    topics: ['qwen2-vl', 'multimodal-ai', 'faiss', 'fastapi', 'react']
+    stargazers_count: null,
+    forks_count: null,
+    updated_at: null,
+    topics: []
   },
   {
     id: 102,
     name: 'plant-disease-detection',
-    description: 'Deep learning plant disease classification system with TensorFlow/Keras and multilingual Streamlit app.',
-    html_url: 'https://github.com/rajavarun/plant-disease-detection',
+    description: 'Streamlit plant-leaf classification demo with a bundled TensorFlow/Keras model and multilingual recommendations.',
+    html_url: 'https://github.com/raja-varun/plant-disease-detection',
     homepage: null,
     language: 'Python',
-    stargazers_count: 8,
-    forks_count: 3,
-    updated_at: '2025-02-20T00:00:00Z',
-    topics: ['tensorflow', 'opencv', 'computer-vision', 'streamlit', 'deep-learning']
+    stargazers_count: null,
+    forks_count: null,
+    updated_at: null,
+    topics: []
   },
   {
     id: 103,
-    name: 'gesture-system-control',
-    description: 'Real-time hand gesture recognition system for touchless Windows OS control using OpenCV and MediaPipe.',
-    html_url: 'https://github.com/rajavarun/gesture-based-system-control',
+    name: 'gesture-based-system-control',
+    description: 'Windows computer-vision prototype for hand-gesture volume, brightness, and scrolling controls.',
+    html_url: 'https://github.com/raja-varun/gesture-based-system-control',
     homepage: null,
     language: 'Python',
-    stargazers_count: 6,
-    forks_count: 1,
-    updated_at: '2025-06-10T00:00:00Z',
-    topics: ['mediapipe', 'opencv', 'gesture-recognition', 'pyautogui', 'pycaw']
+    stargazers_count: null,
+    forks_count: null,
+    updated_at: null,
+    topics: []
   }
 ];
 

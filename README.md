@@ -1,8 +1,8 @@
 # Raja Varun — Personal Brand & AI Engineering Portfolio
 
-A modern, production-grade personal portfolio website engineered for **Raja Varun**, specializing in **AI, Machine Learning, and Data Science**.
+A personal portfolio website for **Raja Varun**, showcasing work in **AI, Machine Learning, and Data Science**.
 
-Built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Framer Motion**, strictly grounded in verified resume credentials.
+Built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Framer Motion**, grounded in the project and profile information maintained in this repository.
 
 ---
 
@@ -12,8 +12,8 @@ Built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Framer M
 - **Hero & Interactive CTAs**: Headline, personal statement, direct resume download/view modal, and copy email button.
 - **Projects Showcase (Core Section)**:
   - **ColPali: OCR-Free Document Retrieval** (Qwen2-VL, FAISS, FastAPI, React.js)
-  - **Plant Disease Detection System** (TensorFlow, Keras, OpenCV, 95%+ accuracy, Streamlit)
-  - **Gesture-Based System Control** (Python, MediaPipe, OpenCV, PyAutoGUI, pycaw)
+  - **Plant Disease Detection System** (TensorFlow, Keras, and Streamlit; no evaluation metric is claimed here)
+  - **Gesture-Based System Control** (Python, MediaPipe, OpenCV, PyAutoGUI, and Windows audio APIs)
   - Interactive category filtering and deep-dive architecture modal for each project.
 - **Verified Skills System**: Categorized into Programming Languages, Machine Learning & Vision, and Frameworks/Tools with click-to-copy technology badges.
 - **Experience & Internships Timeline**: Accurate responsibilities and achievements for InAmigos Foundation and Talent Trek.
@@ -102,3 +102,24 @@ It contains:
 - Formatted experience, education, and project sections
 - Featured section linking instructions
 - 6 ready-to-publish authentic LinkedIn post drafts (Launch, ColPali deep-dive, CV plant detection, MediaPipe touchless navigation, AI journey, Hackathon reflection)
+
+
+## Verification
+
+Run the repository checks from the project root:
+
+```bash
+npm install
+npm run lint
+npm run build
+```
+
+This repository currently has no automated browser test suite. The GitHub section
+reads public repository metadata in the browser and falls back to a small list of
+verified public project URLs when the API is unavailable; live star/fork counts
+are not fabricated in fallback mode.
+
+## Architecture
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the client-side runtime
+flow, GitHub API boundary, build, and privacy notes.
